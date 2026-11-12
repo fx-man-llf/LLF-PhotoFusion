@@ -1,0 +1,132 @@
+﻿LLF PhotoFusion 1.2 - Assemblage automatique d'images numérisées
+=================================================================
+
+Logiciel GRATUIT, utilisable par tous (particuliers, associations,
+écoles, entreprises...).
+© 2026 LLF  -  https://www.laludotheque.fr  -  https://www.lalogitheque.fr
+
+LLF PhotoFusion fait l'équivalent de « Photomerge » de Photoshop pour des
+numérisations : il retrouve où se trouve chaque morceau, le remet dans le bon
+sens, corrige les petites déformations du papier et du scanner, puis fusionne
+le tout en une seule image sans raccord visible, au même format et à la même
+résolution (dpi) que les originaux.
+
+Formats acceptés : JPG, PNG, TIFF (8 et 16 bits), BMP, WEBP, JPEG 2000 et
+RAW d'appareils photo (CR2, CR3, NEF, ARW, DNG, ORF, RW2, RAF...).
+Nombre d'images : 2 à 24 (testé jusqu'à 12 grandes numérisations).
+
+
+INSTALLATION ET LANCEMENT
+-------------------------
+
+Windows 11
+  1. Décompressez le dossier LLF PhotoFusion où vous voulez (ex. Documents).
+  2. Double-cliquez sur « Lancer LLF PhotoFusion (Windows).bat ».
+     - Au premier lancement, Python et les modules nécessaires sont installés
+       automatiquement (connexion Internet requise, quelques minutes).
+     - Si Windows affiche « Windows a protégé votre ordinateur », cliquez sur
+       « Informations complémentaires » puis « Exécuter quand même ».
+  3. LLF PhotoFusion s'ouvre dans sa propre fenêtre.
+  4. Facultatif : double-cliquez sur « Creer un raccourci sur le Bureau
+     (Windows).bat » pour avoir l'icône LLF PhotoFusion sur le Bureau.
+
+Linux Mint (et Ubuntu, Debian...)
+  1. Une seule fois, dans un terminal :   sudo apt install python3-venv
+  2. Double-cliquez sur « lancer_photofusion_linux.sh » (choisir « Lancer
+     dans un terminal ») ou tapez :   ./lancer_photofusion_linux.sh
+  3. Facultatif : ./installer_raccourci_linux.sh ajoute LLF PhotoFusion au menu
+     des applications (rubrique Graphisme).
+
+La petite fenêtre noire (console) doit rester ouverte pendant l'utilisation ;
+elle se ferme toute seule environ 2 minutes après la fermeture de LLF PhotoFusion.
+Tout se passe sur votre ordinateur : aucune image n'est envoyée sur Internet.
+
+
+UTILISATION
+-----------
+
+Langue : français, anglais ou japonais, au choix dans le menu en haut à
+droite de la fenêtre (🌐). Le choix est mémorisé.
+
+1. Images : cliquez sur « Ajouter des images » ou glissez vos fichiers dans
+   la fenêtre. La première image est la « référence » : c'est elle qui donne
+   l'orientation du résultat (bouton « Prendre comme référence » pour changer).
+
+2. Assembler automatiquement : LLF PhotoFusion trouve les recouvrements, même si
+   une numérisation est à l'envers, tournée d'un quart de tour ou de travers.
+   L'onglet « Aperçu de la fusion » montre le résultat. La « précision du
+   raccord » indique l'écart moyen restant (moins de 1 pixel = parfait).
+
+   Si une image reste en ROUGE (non trouvée), dans l'onglet « Disposition » :
+     - faites-la glisser à peu près à sa place,
+     - tournez-la avec ⟲ / ⟳ si besoin,
+     - puis relancez « Assembler automatiquement ».
+   Faire tourner l'image de référence fait tourner tout l'assemblage.
+
+3. Réglages :
+     - Redresser : petite rotation de l'ensemble, en degrés (ex. 0,5 ou -1,2),
+       puis « Aperçu ».
+     - Rogner les bords vides : garde le plus grand rectangle sans zone vide.
+     - Format : « Identique aux originaux » (RAW -> TIFF 16 bits), ou TIFF,
+       PNG, JPEG.
+
+4. Créer l'image finale : le fichier est enregistré dans le dossier indiqué
+   (par défaut Images\LLF PhotoFusion). Les bits (8/16), le niveau de gris, la
+   résolution dpi et le profil de couleur ICC de l'image de référence sont
+   conservés.
+
+
+COMMENT ÇA MARCHE (pour les curieux)
+------------------------------------
+- Points caractéristiques SIFT (insensibles à la rotation), répartis sur
+  toute l'image, + RANSAC à hypothèses multiples (image entière et bandes
+  de bord) : un recouvrement étroit fait seulement de texte est trouvé.
+- Chaque hypothèse est vérifiée en superposant réellement les pixels :
+  deux titres ou légendes identiques sur des pages différentes ne trompent
+  plus l'assemblage.
+- Appariement dense sub-pixel à pleine résolution dans les recouvrements.
+- Optimisation globale de toutes les images en même temps (pas de dérive
+  d'erreur avec 12 images).
+- Déformation locale douce par maillage : compense l'étirement du scanner
+  (environ 1 % sur vos essais) et le papier gondolé ou plié.
+- Égalisation d'exposition, coutures « graph-cut » qui passent de préférence
+  par le fond du papier, et fusion en deux bandes de fréquences.
+- Traitement par tuiles avec cache disque : de très grandes images passent
+  sans saturer la mémoire.
+
+Prévoir environ 3 Go de RAM libre et 3 fois la taille des images en espace
+disque temporaire. Exemple : 4 TIFF A3 à 600 dpi -> environ 2 minutes.
+
+
+LIGNE DE COMMANDE (facultatif)
+------------------------------
+  .venv\Scripts\python photofusion_cli.py a.tif b.tif c.tif -o fusion.tif   (Windows)
+  .venv/bin/python photofusion_cli.py a.tif b.tif c.tif -o fusion.tif       (Linux)
+  Options : --crop  --rotation 0.5  --black
+
+
+PROBLÈMES FRÉQUENTS
+-------------------
+- Message « Python est introuvable ; exécutez sans arguments pour installer
+  à partir du Microsoft Store... » : c'est le faux raccourci « python » de
+  Windows 11. Le lanceur le détecte désormais et installe un vrai Python
+  tout seul. Si besoin, vous pouvez aussi le désactiver : Paramètres >
+  Applications > Paramètres avancés des applications > Alias d'exécution
+  d'application > désactiver « python.exe » et « python3.exe ».
+- « Python n'est pas installé » et l'installation automatique échoue :
+  installez Python depuis https://www.python.org/downloads/ en cochant
+  « Add python.exe to PATH », puis relancez.
+- La fenêtre ne s'ouvre pas : ouvrez l'adresse affichée dans la console
+  (http://127.0.0.1:....) dans votre navigateur.
+- Pour réinstaller les modules : supprimez le dossier « .venv » et relancez.
+- Fichiers RAW refusés : le module « rawpy » n'a pas pu s'installer ;
+  convertissez les RAW en TIFF 16 bits.
+
+
+LICENCE ET CRÉDITS
+------------------
+LLF PhotoFusion est un logiciel gratuit : chacun peut l'utiliser librement,
+le copier et le partager.
+© 2026 LLF
+  https://www.laludotheque.fr
+  https://www.lalogitheque.fr
